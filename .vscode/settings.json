@@ -1,0 +1,35 @@
+{
+  "python-envs.defaultEnvManager": "ms-python.python:pyenv",
+  "python-envs.pythonProjects": [
+    {
+      "path": ".",
+      "envManager": "ms-python.python:pyenv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ],
+
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+
+  // Import sorting is owned by ruff (lint rule I); silence the separate isort extension so it does
+  // not run on save and fight ruff.
+  "isort.check": false,
+  "isort.args": [],
+
+  "cSpell.words": [
+    "AMCP",
+    "canonicalizable",
+    "anchorable"
+  ]
+}

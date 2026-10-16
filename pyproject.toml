@@ -1,0 +1,85 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Distribution name is `auditable-a2a-sdk`; the bare `auditable-a2a` name is left for the spec
+# itself. The import package is `auditable_a2a`.
+[project]
+name = "auditable-a2a-sdk"
+version = "0.1.0"
+description = "Auditable A2A SDK — write-ahead audit of a delegated A2A Task into the Client's ledger (auditable-a2a/0.1, over auditable-mcp/0.4)."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [{ name = "Satoshi Imai" }]
+keywords = ["a2a", "agent2agent", "audit", "tamper-evident", "ledger", "auditable-mcp"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+# Releases are tags, not PyPI: the a-MCP SDK is pinned to the tag of the version this package implements.
+dependencies = [
+    "auditable-mcp-sdk @ git+https://github.com/SatoshiImai/auditable-mcp-sdk-python.git@v0.4.0",
+    "anyio>=4",
+    "pydantic>=2.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/SatoshiImai/auditable-a2a-sdk-python"
+Repository = "https://github.com/SatoshiImai/auditable-a2a-sdk-python"
+Issues = "https://github.com/SatoshiImai/auditable-a2a-sdk-python/issues"
+Changelog = "https://github.com/SatoshiImai/auditable-a2a-sdk-python/blob/master/CHANGELOG.md"
+Specification = "https://github.com/SatoshiImai/auditable-a2a"
+
+# The core injects its HTTP client (`AuditEndpointClient(post=...)`) and depends on none; `http` provides
+# httpx for `auditable_a2a.httpx_post`, the one most users will want.
+[project.optional-dependencies]
+http = ["httpx>=0.27"]
+# `auditable_a2a.a2a` binds the extension to the official A2A Python SDK; nothing else imports it.
+a2a = ["a2a-sdk[http-server]>=1.2.2,<1.3"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "jsonschema>=4.21",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "types-protobuf",
+    "uvicorn>=0.30",
+    # The walk signs and verifies Agent Cards (§3.1, A2A §8.4).
+    "a2a-sdk[signing]>=1.2.2,<1.3",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/auditable_a2a"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.vscode/**", "/.python-version"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+enable_error_code = ["deprecated"]

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "reason": {
+      "description": "An a-MCP Tier-1 abort code (a-MCP §7.2, §7.6).",
+      "type": "string",
+      "enum": [
+        "host-unavailable",
+        "host-rejected",
+        "host-uncountersigned",
+        "host-signature-invalid",
+        "hash-mismatch"
+      ]
+    },
+    "hostReason": {
+      "description": "An a-MCP Tier-1 host reject or unavailable code (a-MCP §7.6).",
+      "type": "string",
+      "enum": [
+        "schema-invalid",
+        "replay-detected",
+        "signature-invalid",
+        "l2-unsigned",
+        "unknown-key",
+        "internal-error"
+      ]
+    },
+    "httpStatus": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 599
+    },
+    "attemptId": {
+      "type": "string",
+      "pattern": "^([0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$"
+    }
+  },
+  "required": [
+    "reason"
+  ],
+  "additionalProperties": false
+}

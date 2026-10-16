@@ -1,0 +1,90 @@
+[
+  {
+    "name": "l2-agent-serves-l1",
+    "params": {
+      "level": "L2",
+      "countersign": "none",
+      "attestationKeys": "https://agent.example.com/jwks.json"
+    },
+    "request": {
+      "level": "L1",
+      "countersign": "none"
+    },
+    "expected": {
+      "negotiated": true
+    }
+  },
+  {
+    "name": "l2-agent-serves-l2",
+    "params": {
+      "level": "L2",
+      "countersign": "none",
+      "attestationKeys": "https://agent.example.com/jwks.json"
+    },
+    "request": {
+      "level": "L2",
+      "countersign": "none"
+    },
+    "expected": {
+      "negotiated": true
+    }
+  },
+  {
+    "name": "l1-agent-refuses-l2",
+    "params": {
+      "level": "L1",
+      "countersign": "none"
+    },
+    "request": {
+      "level": "L2",
+      "countersign": "none"
+    },
+    "expected": {
+      "negotiated": false,
+      "field": "level"
+    }
+  },
+  {
+    "name": "agent-requiring-countersign-refuses-none",
+    "params": {
+      "level": "L1",
+      "countersign": "host"
+    },
+    "request": {
+      "level": "L1",
+      "countersign": "none"
+    },
+    "expected": {
+      "negotiated": false,
+      "field": "countersign"
+    }
+  },
+  {
+    "name": "agent-requiring-countersign-takes-host",
+    "params": {
+      "level": "L1",
+      "countersign": "host"
+    },
+    "request": {
+      "level": "L1",
+      "countersign": "host"
+    },
+    "expected": {
+      "negotiated": true
+    }
+  },
+  {
+    "name": "agent-requiring-none-takes-host",
+    "params": {
+      "level": "L1",
+      "countersign": "none"
+    },
+    "request": {
+      "level": "L1",
+      "countersign": "host"
+    },
+    "expected": {
+      "negotiated": true
+    }
+  }
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "name": "not-performed-attempted",
+    "input": {
+      "id": "0199a3e1-0000-7000-8000-000000000064",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "sessionId": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+      "execution": "not-performed"
+    },
+    "outcome": "attempted",
+    "event": {
+      "id": "0199a3e1-0000-7000-8000-000000000064",
+      "spec_version": "auditable-mcp/0.4",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "session_id": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "action_type": "a2a.execution-report",
+      "mutates": false,
+      "egress": false,
+      "target_resource": {
+        "kind": "a2a.audit-session",
+        "ref": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11"
+      },
+      "outcome": "attempted",
+      "action_context": {
+        "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+        "execution": "not-performed"
+      }
+    },
+    "canonical": "{\"action_context\":{\"attemptId\":\"0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f\",\"execution\":\"not-performed\"},\"action_type\":\"a2a.execution-report\",\"egress\":false,\"id\":\"0199a3e1-0000-7000-8000-000000000064\",\"mutates\":false,\"outcome\":\"attempted\",\"session_id\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\",\"spec_version\":\"auditable-mcp/0.4\",\"target_resource\":{\"kind\":\"a2a.audit-session\",\"ref\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\"},\"ts\":\"2026-10-15T00:00:00.000Z\"}",
+    "sha256": "bcc30f6d5dcde9a994eb68e5f5b3e72ed1083a286569f8b3ce550e3528c1a0c1"
+  },
+  {
+    "name": "not-performed-success",
+    "input": {
+      "id": "0199a3e1-0000-7000-8000-000000000064",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "sessionId": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+      "execution": "not-performed"
+    },
+    "outcome": "success",
+    "event": {
+      "id": "0199a3e1-0000-7000-8000-000000000064",
+      "spec_version": "auditable-mcp/0.4",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "session_id": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "action_type": "a2a.execution-report",
+      "mutates": false,
+      "egress": false,
+      "target_resource": {
+        "kind": "a2a.audit-session",
+        "ref": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11"
+      },
+      "outcome": "success",
+      "action_context": {
+        "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+        "execution": "not-performed"
+      }
+    },
+    "canonical": "{\"action_context\":{\"attemptId\":\"0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f\",\"execution\":\"not-performed\"},\"action_type\":\"a2a.execution-report\",\"egress\":false,\"id\":\"0199a3e1-0000-7000-8000-000000000064\",\"mutates\":false,\"outcome\":\"success\",\"session_id\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\",\"spec_version\":\"auditable-mcp/0.4\",\"target_resource\":{\"kind\":\"a2a.audit-session\",\"ref\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\"},\"ts\":\"2026-10-15T00:00:00.000Z\"}",
+    "sha256": "92a02af576314c5817e8c1251f8822fc74b250737170e210a224f41aa0c18c4c"
+  },
+  {
+    "name": "indeterminate-attempted",
+    "input": {
+      "id": "0199a3e1-0000-7000-8000-000000000065",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "sessionId": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+      "execution": "indeterminate"
+    },
+    "outcome": "attempted",
+    "event": {
+      "id": "0199a3e1-0000-7000-8000-000000000065",
+      "spec_version": "auditable-mcp/0.4",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "session_id": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "action_type": "a2a.execution-report",
+      "mutates": false,
+      "egress": false,
+      "target_resource": {
+        "kind": "a2a.audit-session",
+        "ref": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11"
+      },
+      "outcome": "attempted",
+      "action_context": {
+        "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+        "execution": "indeterminate"
+      }
+    },
+    "canonical": "{\"action_context\":{\"attemptId\":\"0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f\",\"execution\":\"indeterminate\"},\"action_type\":\"a2a.execution-report\",\"egress\":false,\"id\":\"0199a3e1-0000-7000-8000-000000000065\",\"mutates\":false,\"outcome\":\"attempted\",\"session_id\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\",\"spec_version\":\"auditable-mcp/0.4\",\"target_resource\":{\"kind\":\"a2a.audit-session\",\"ref\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\"},\"ts\":\"2026-10-15T00:00:00.000Z\"}",
+    "sha256": "cc5e9b5b04ed64b17d5f3838d42d1e5282a6139cf8a78856ec0872951a55039c"
+  },
+  {
+    "name": "indeterminate-success",
+    "input": {
+      "id": "0199a3e1-0000-7000-8000-000000000065",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "sessionId": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+      "execution": "indeterminate"
+    },
+    "outcome": "success",
+    "event": {
+      "id": "0199a3e1-0000-7000-8000-000000000065",
+      "spec_version": "auditable-mcp/0.4",
+      "ts": "2026-10-15T00:00:00.000Z",
+      "session_id": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11",
+      "action_type": "a2a.execution-report",
+      "mutates": false,
+      "egress": false,
+      "target_resource": {
+        "kind": "a2a.audit-session",
+        "ref": "0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11"
+      },
+      "outcome": "success",
+      "action_context": {
+        "attemptId": "0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f",
+        "execution": "indeterminate"
+      }
+    },
+    "canonical": "{\"action_context\":{\"attemptId\":\"0199a3e1-0b2c-7d3e-8f40-1a2b3c4d5e6f\",\"execution\":\"indeterminate\"},\"action_type\":\"a2a.execution-report\",\"egress\":false,\"id\":\"0199a3e1-0000-7000-8000-000000000065\",\"mutates\":false,\"outcome\":\"success\",\"session_id\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\",\"spec_version\":\"auditable-mcp/0.4\",\"target_resource\":{\"kind\":\"a2a.audit-session\",\"ref\":\"0199a3e0-7c1f-7a4e-9b1d-5f2f7e0c4a11\"},\"ts\":\"2026-10-15T00:00:00.000Z\"}",
+    "sha256": "2c8738f0c507c751d5b701b68014d15a9497ba6c4dbe7c1d306e272c6b616551"
+  }
+]

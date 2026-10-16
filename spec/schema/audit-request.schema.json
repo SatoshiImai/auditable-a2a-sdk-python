@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "auditEndpoint": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "format": "uri",
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "authentication": {
+          "type": "object",
+          "properties": {
+            "scheme": {
+              "type": "string",
+              "pattern": "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$"
+            },
+            "credentials": {
+              "type": "string",
+              "pattern": "^[\\x21-\\x7e](?:[\\x20-\\x7e]*[\\x21-\\x7e])?$"
+            }
+          },
+          "required": [
+            "scheme",
+            "credentials"
+          ],
+          "additionalProperties": false
+        },
+        "token": {
+          "type": "string",
+          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+        }
+      },
+      "required": [
+        "url",
+        "authentication"
+      ],
+      "additionalProperties": false
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "L1",
+        "L2"
+      ]
+    },
+    "countersign": {
+      "type": "string",
+      "enum": [
+        "none",
+        "host"
+      ]
+    },
+    "hostKeys": {
+      "format": "uri",
+      "type": "string",
+      "pattern": "^https://[^#]+$"
+    },
+    "expiresAt": {
+      "format": "date-time",
+      "type": "string",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?Z$"
+    }
+  },
+  "required": [
+    "auditEndpoint",
+    "sessionId",
+    "level",
+    "countersign",
+    "expiresAt"
+  ],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "countersign": {
+        "const": "host"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "hostKeys"
+    ]
+  }
+}

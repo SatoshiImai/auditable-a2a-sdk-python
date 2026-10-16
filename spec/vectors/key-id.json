@@ -1,0 +1,12 @@
+[
+  {
+    "jwks": "https://agent.example.com/.well-known/jwks.json",
+    "kid": "k1",
+    "key_id": "https://agent.example.com/.well-known/jwks.json#k1"
+  },
+  {
+    "jwks": "https://audit.client.example.com/keys",
+    "kid": "2026-10#a",
+    "key_id": "https://audit.client.example.com/keys#2026-10#a"
+  }
+]

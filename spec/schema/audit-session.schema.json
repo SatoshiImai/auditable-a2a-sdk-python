@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "L1",
+        "L2"
+      ]
+    },
+    "countersign": {
+      "type": "string",
+      "enum": [
+        "none",
+        "host"
+      ]
+    }
+  },
+  "required": [
+    "sessionId",
+    "level",
+    "countersign"
+  ],
+  "additionalProperties": false
+}

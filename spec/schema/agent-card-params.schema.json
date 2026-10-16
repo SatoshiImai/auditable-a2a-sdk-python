@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "level": {
+      "type": "string",
+      "enum": [
+        "L1",
+        "L2"
+      ]
+    },
+    "countersign": {
+      "type": "string",
+      "enum": [
+        "none",
+        "host"
+      ]
+    },
+    "selfChain": {
+      "type": "boolean"
+    },
+    "attestationKeys": {
+      "format": "uri",
+      "type": "string",
+      "pattern": "^https://[^#]+$"
+    }
+  },
+  "required": [
+    "level",
+    "countersign"
+  ],
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "level": {
+        "const": "L2"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "attestationKeys"
+    ]
+  }
+}
