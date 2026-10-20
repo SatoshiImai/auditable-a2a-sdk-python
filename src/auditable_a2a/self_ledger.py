@@ -66,6 +66,14 @@ class _Performing(WireModel):
     # end class
 
 
+class _Record(WireModel):
+    """An attempt about to be sent for a record that is not an access (§8.1): completed, never reported on."""
+
+    entry: Literal['record']
+    id: _Id
+    # end class
+
+
 class _Resolved(WireModel):
     """How an access resolved."""
 
@@ -90,9 +98,9 @@ class _Close(WireModel):
     # end class
 
 
-_ENTRY: TypeAdapter[_Session | _Sent | _Response | _Performing | _Resolved | _Acked | _Close] = TypeAdapter(
+_ENTRY: TypeAdapter[_Session | _Sent | _Response | _Performing | _Record | _Resolved | _Acked | _Close] = TypeAdapter(
     Annotated[
-        _Session | _Sent | _Response | _Performing | _Resolved | _Acked | _Close,
+        _Session | _Sent | _Response | _Performing | _Record | _Resolved | _Acked | _Close,
         Field(discriminator='entry'),
     ]
 )

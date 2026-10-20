@@ -9,6 +9,12 @@ Changes to the Auditable A2A Python SDK. A package version 0.X.Y implements the 
   A delegate resolves a receipt's `host_key_id` at `hostKeys`; a key named any other way is never found there,
   and every countersignature it made reads as `host-signature-invalid`. Found when an audit host named its key
   by the bare `kid` its own registry used.
+- `AuditedTask.record` records a transition, a question or an answer: a record that is not an access (§8.1). Its
+  attempt has `mutates` and `egress` both `false`, its outcome is `success` however its body ends, and a resumption
+  completes an accepted one with `success` instead of sending an execution report (§5.5), which is for accesses.
+  Recorded through `action`, such a record read after a restart as an access that may have been performed.
+  The own ledger gains a `record` entry: a ledger holding one cannot be resumed by 0.1.0, so do not move back to
+  0.1.0 while Tasks it ran are still in flight.
 
 ## 0.1.0 - 2026-10-16
 

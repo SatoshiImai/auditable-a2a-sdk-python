@@ -93,13 +93,20 @@ class TrackedAction:
     """a-MCP's `AuditedAction`, held outstanding until it is resolved, and written ahead into the own ledger."""
 
     def __init__(
-        self, task: 'AuditedTask', action: AuditedAction, *, refuse_after_expiry: bool, is_report: bool
+        self,
+        task: 'AuditedTask',
+        action: AuditedAction,
+        *,
+        refuse_after_expiry: bool,
+        is_report: bool,
+        is_record: bool = False,
     ) -> None:
-        """Wrap the action."""
+        """Wrap the action; `is_record` for a record that is not an access (§8.1)."""
         self._task = task
         self._action = action
         self._refuse_after_expiry = refuse_after_expiry
         self._is_report = is_report
+        self._is_record = is_record
         self._state: _Unresolved | None = None
         # end def
 
@@ -125,6 +132,12 @@ class TrackedAction:
             # end if
         task._pending += 1
         try:
+            # Written before the attempt is sent, so a resumption that finds it accepted completes it with
+            # `success` rather than reporting it as an access (§8.1, §5.5). Counted as on its way from here, so
+            # `finish` does not close under it (§6.7).
+            if self._is_record and task._journal is not None:
+                await task._journal({'entry': 'record', 'id': self._action.id})
+                # end if
             entered = await self._action.__aenter__()
         except AmcpAbortedError as error:
             task._aborted_attempts[error] = self._action.id
@@ -150,11 +163,12 @@ class TrackedAction:
             # end try
         self._state = _Unresolved()
         task._unresolved[self._action.id] = self._state
-        if not self._is_report:
+        performs = not self._is_report and not self._is_record
+        if performs:
             task._accepted.add(self._action.id)
             # end if
-        # Not performed unless it is written that it is about to be (§5.5). An execution report performs nothing.
-        if task._self_ledger is not None and not self._is_report:
+        # Not performed unless it is written that it is about to be (§5.5). A report or a record performs nothing.
+        if task._self_ledger is not None and performs:
             await task._self_ledger.write({'entry': 'performing', 'id': self._action.id})
             # end if
         return entered
@@ -192,8 +206,15 @@ class TrackedAction:
     async def _resolve(
         self, exc_type: type[BaseException] | None, exc: BaseException | None, tb: TracebackType | None
     ) -> None:
-        """Write how the access resolved, then send its outcome."""
+        """Write how the access resolved, then send its outcome.
+
+        A record that is not an access ends `success` whatever its body did: it describes what already happened
+        (§8.1), and the body's error still propagates.
+        """
         task = self._task
+        if self._is_record:
+            exc_type, exc, tb = None, None, None
+            # end if
         if task._self_ledger is not None:
             outcome = 'failed' if exc_type is not None else 'success'
             try:
@@ -259,6 +280,11 @@ class AuditedTask:
             )
             # end if
         endpoint = request.auditEndpoint
+        self._journal: Journal | None = (
+            None
+            if self_ledger is None
+            else self._journal_of(self_ledger, task_id, request, signer, host_key_snapshot, resumed_at is not None)
+        )
         self._client = AuditEndpointClient(
             url=endpoint.url,
             authentication=endpoint.authentication,
@@ -268,9 +294,7 @@ class AuditedTask:
             post=post,
             token=endpoint.token,
             timeout=timeout,
-            journal=None
-            if self_ledger is None
-            else self._journal_of(self_ledger, task_id, request, signer, host_key_snapshot, resumed_at is not None),
+            journal=self._journal,
             numbering=None if resumed_at is None else SessionNumbering(resumed_at),
         )
         self._request = request
@@ -375,7 +399,7 @@ class AuditedTask:
                 Task with `status_of` as its `auditStatus` (§8.4).
             SessionExpiredError: On entering, the session has expired: do not continue the Task (§5.3).
         """
-        return self._record(
+        return self._tracked(
             action_type,
             target_resource,
             mutates=mutates,
@@ -387,7 +411,45 @@ class AuditedTask:
         )
         # end def
 
-    def _record(
+    def record(
+        self,
+        action_type: str,
+        target_resource: dict[str, object],
+        *,
+        disclose: dict[str, object] | None = None,
+        commit: object | None = None,
+        commit_salted: dict[str, object] | None = None,
+    ) -> TrackedAction:
+        """Record a transition, a question or an answer: a record that is not an access (§8.1); use as `async with`.
+
+        The attempt has `mutates` and `egress` both `false`. Do not go past what it describes until it is
+        accepted, which entering waits for. Its outcome is `success` however the body ends, and a resumption
+        completes an accepted one with `success` rather than reporting on it (§5.5).
+
+        Raises:
+            ValueError: `action_type` is the execution report's, which a record is not (§8.1).
+            AmcpAbortedError: On entering, the record could not be made: do not go past it, and hold the Task
+                with `status_of` as its `auditStatus` (§8.4).
+            SessionExpiredError: On entering, the session has expired: do not continue the Task (§5.3).
+            SelfLedgerError: On entering, it could not be written that this is a record; nothing was sent.
+        """
+        if action_type == EXECUTION_REPORT_ACTION_TYPE:
+            raise ValueError(f'a record that is not an access does not use the action_type {action_type}')
+            # end if
+        return self._tracked(
+            action_type,
+            target_resource,
+            mutates=False,
+            egress=False,
+            disclose=disclose,
+            commit=commit,
+            commit_salted=commit_salted,
+            refuse_after_expiry=True,
+            is_record=True,
+        )
+        # end def
+
+    def _tracked(
         self,
         action_type: str,
         target_resource: dict[str, object],
@@ -398,6 +460,7 @@ class AuditedTask:
         commit: object | None = None,
         commit_salted: dict[str, object] | None = None,
         refuse_after_expiry: bool,
+        is_record: bool = False,
     ) -> TrackedAction:
         """a-MCP's `action`, tracked until it is resolved."""
         action = self._session.action(
@@ -414,6 +477,7 @@ class AuditedTask:
             action,
             refuse_after_expiry=refuse_after_expiry,
             is_report=action_type == EXECUTION_REPORT_ACTION_TYPE,
+            is_record=is_record,
         )
         # end def
 
@@ -445,7 +509,7 @@ class AuditedTask:
             state.reported = True
             # end if
         try:
-            async with self._record(
+            async with self._tracked(
                 EXECUTION_REPORT_ACTION_TYPE,
                 {'kind': AUDIT_SESSION_KIND, 'ref': self._request.sessionId},
                 mutates=False,

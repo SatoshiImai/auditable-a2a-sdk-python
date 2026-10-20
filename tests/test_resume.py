@@ -638,3 +638,101 @@ async def test_fails_when_a_well_chained_entry_is_not_one_the_sdk_writes() -> No
     await reopened.write({'entry': 'resolved', 'id': 'x', 'outcome': 'maybe'})
     assert (await world.restart()).reason == 'own-ledger'
     # end def
+
+
+class TestARecordThatIsNotAnAccess:
+    """§8.1 and §5.5: a transition, a question or an answer is completed with `success`, never reported on."""
+
+    async def test_ends_success_and_is_not_reported_even_when_its_body_raises(self) -> None:
+        world = await _setup()
+        with pytest.raises(RuntimeError, match='after the record'):
+            async with world.task.record('agent.step', {'kind': 'task', 'ref': 'task-1'}) as record:
+                raise RuntimeError('after the record')
+                # end async with
+            # end with
+        (attempt,) = [r for r in world.host.records() if r.event['outcome'] == 'attempted']
+        assert (attempt.event['mutates'], attempt.event['egress']) == (False, False)
+        assert [r.event['outcome'] for r in world.outcomes_of(record.id)] == ['success']
+        assert await world.task.finish() is True
+        # end def
+
+    async def test_an_accepted_record_the_restart_caught_is_completed_with_success(self) -> None:
+        world = await _setup()
+        record = await world.task.record('agent.step', {'kind': 'task', 'ref': 'task-1'}).__aenter__()
+
+        resumed = await world.restart()
+        assert (resumed.state, resumed.not_performed, resumed.indeterminate) == ('continue', [], [])
+        assert world.reports_on(record.id) == []
+        assert [r.event['outcome'] for r in world.outcomes_of(record.id)] == ['success']
+        # end def
+
+    async def test_a_record_that_first_reaches_it_on_a_resend_is_completed_with_success(self) -> None:
+        world = await _setup()
+        world.network.modes.append('hang')
+
+        async def step() -> None:
+            async with world.task.record('agent.step', {'kind': 'task', 'ref': 'task-1'}):
+                pass
+                # end async with
+            # end def
+
+        async with anyio.create_task_group() as group:
+            group.start_soon(step)
+            while not world.host.records():
+                await anyio.sleep(0)
+                # end while
+            world.repository.fail_when = lambda record: True
+            world.network.modes.extend(['down'] * 8)
+            group.cancel_scope.cancel()
+            # end async with
+        world.repository.fail_when = None
+        world.network.modes.clear()
+        event_id = str(world.host.records()[0].event['id'])
+
+        resumed = await world.restart()
+        assert (resumed.state, resumed.not_performed) == ('continue', [])
+        assert world.reports_on(event_id) == []
+        assert [r.event['outcome'] for r in world.outcomes_of(event_id)] == ['success']
+        # end def
+
+    async def test_is_counted_as_on_its_way_while_its_entry_is_written(self) -> None:
+        world = await _setup()
+        written = anyio.Event()
+        release = anyio.Event()
+        write = world.repository.append
+
+        async def slow_append(partition: str, record: object) -> None:
+            if getattr(record, 'event', {}).get('entry') == 'record':  # type: ignore[union-attr]
+                written.set()
+                await release.wait()
+                # end if
+            await write(partition, record)  # type: ignore[arg-type]
+            # end def
+
+        world.repository.append = slow_append  # type: ignore[method-assign]
+        closed: list[bool] = []
+
+        async def step() -> None:
+            async with world.task.record('agent.step', {'kind': 'task', 'ref': 'task-1'}):
+                pass
+                # end async with
+            # end def
+
+        async with anyio.create_task_group() as group:
+            group.start_soon(step)
+            await written.wait()
+            closed.append(await world.task.finish())
+            release.set()
+            # end async with
+        assert closed == [False]
+        assert await world.task.finish() is True
+        # end def
+
+    async def test_the_execution_report_type_is_not_a_record(self) -> None:
+        world = await _setup()
+        with pytest.raises(ValueError, match='does not use'):
+            world.task.record(EXECUTION_REPORT_ACTION_TYPE, {'kind': 'task', 'ref': 'task-1'})
+            # end with
+        # end def
+
+    # end class
