@@ -96,9 +96,11 @@ class A2aAuditHost:
         store: SessionStore,
         clock: Clock,
         random: Callable[[int], bytes],
+        countersigner_key_id: str | None = None,
     ) -> None:
         """Bind the a-MCP host and this layer's state; use `create` or `resume` to build one."""
         self._host = host
+        self._countersigner_key_id = countersigner_key_id
         self._level = level
         self._countersign = countersign
         self._store = store
@@ -150,7 +152,15 @@ class A2aAuditHost:
             repository=repository,
             clock=clock,
         )
-        self = cls(host, level, countersign, store=store, clock=clock or SystemClock(), random=random)
+        self = cls(
+            host,
+            level,
+            countersign,
+            store=store,
+            clock=clock or SystemClock(),
+            random=random,
+            countersigner_key_id=None if countersigner is None else countersigner.key_id,
+        )
         holder.append(self)
         return self
         # end def
@@ -186,7 +196,15 @@ class A2aAuditHost:
             clock=clock,
             open_sessions=[OpenSession(state.session_id, state.signers) for state in states],
         )
-        self = cls(host, level, countersign, store=store, clock=clock or SystemClock(), random=random)
+        self = cls(
+            host,
+            level,
+            countersign,
+            store=store,
+            clock=clock or SystemClock(),
+            random=random,
+            countersigner_key_id=None if countersigner is None else countersigner.key_id,
+        )
         holder.append(self)
         for state in states:
             self._remember(state)
@@ -223,7 +241,8 @@ class A2aAuditHost:
 
         Raises:
             ValueError: A version this host does not implement, Level 2 without a key snapshot, `host`
-                without `host_keys`, or a snapshot that is not a conforming registry (§10.2).
+                without `host_keys`, a countersigning key not named under `host_keys` (§7.1), or a snapshot that is
+                not a conforming registry (§10.2).
             SessionStoreError: The session was not stored.
         """
         async with self._lock:
@@ -235,6 +254,16 @@ class A2aAuditHost:
                 # end if
             if self._countersign == Countersign.HOST and host_keys is None:
                 raise ValueError('a countersigning audit host names its keys in hostKeys (§7.1)')
+                # end if
+            if (
+                host_keys is not None
+                and self._countersigner_key_id is not None
+                and not self._countersigner_key_id.startswith(f'{host_keys}#')
+            ):
+                # A delegate resolves a receipt's host_key_id at hostKeys, as `{hostKeys}#{kid}`: a key named any
+                # other way is never found there, and every countersignature reads as invalid.
+                named = self._countersigner_key_id
+                raise ValueError(f'the countersigning key is named {named}, not under {host_keys}# (§7.1, §10.2)')
                 # end if
             state = SessionState(
                 session_id=self._host.open_session(),

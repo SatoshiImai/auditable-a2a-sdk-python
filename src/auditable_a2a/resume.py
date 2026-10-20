@@ -113,6 +113,7 @@ class _Restored:
     outcomes: dict[str, dict[str, object]] = field(default_factory=dict)
     responses: dict[str, dict[str, object]] = field(default_factory=dict)
     performing: set[str] = field(default_factory=set)
+    records: set[str] = field(default_factory=set)
     resolved: dict[str, str] = field(default_factory=dict)
     acked: set[str] = field(default_factory=set)
     closed: bool = False
@@ -158,6 +159,8 @@ def _restore(entries: list[JournalEntry], credentials: AuditCredentials) -> _Res
             restored.responses[str(entry['id'])] = entry['response']  # type: ignore[assignment]
         elif kind == 'performing':
             restored.performing.add(str(entry['id']))
+        elif kind == 'record':
+            restored.records.add(str(entry['id']))
         elif kind == 'resolved':
             restored.resolved[str(entry['id'])] = str(entry['outcome'])
         elif kind == 'acked':
@@ -416,7 +419,9 @@ async def resume_task(
         {
             event_id
             for event_id in [*accepted_before, *accepted_on_resend]
-            if _reported_attempt_of(restored.attempts.get(event_id, {})) is None and event_id not in restored.outcomes
+            if _reported_attempt_of(restored.attempts.get(event_id, {})) is None
+            and event_id not in restored.outcomes
+            and event_id not in restored.records
         },
         reported,
     )
@@ -432,8 +437,9 @@ async def resume_task(
         if event_id in restored.outcomes or attempt_event is None:
             continue
             # end if
-        # A report is completed with its `success` outcome, not reported on.
-        if attempt_event.get('action_type') == EXECUTION_REPORT_ACTION_TYPE:
+        # A report, and a record that is not an access (§8.1), is completed with its `success` outcome, not
+        # reported on.
+        if attempt_event.get('action_type') == EXECUTION_REPORT_ACTION_TYPE or event_id in restored.records:
             if not await task._emit_outcome(attempt_event, 'success'):
                 return held(4, outcome=event_id)
                 # end if

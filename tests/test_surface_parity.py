@@ -130,3 +130,28 @@ def test_the_two_bindings_to_the_official_sdks_export_the_same_surface() -> None
     assert sorted(name for name in _A2A_ONLY_IN_PYTHON if name in typescript or name not in python) == []
     assert sorted(name for name in _A2A_ONLY_IN_TYPESCRIPT if name in python or name not in typescript) == []
     # end def
+
+
+def _camel(name: str) -> str:
+    head, *rest = name.split('_')
+    return head + ''.join(part.title() for part in rest)
+    # end def
+
+
+def test_the_two_audited_tasks_have_the_same_methods() -> None:
+    """`AuditedTask`'s public methods, compared by name, since the module exports alone do not show them."""
+    source = _TS_SRC / 'audited-task.ts'
+    if not source.exists():
+        pytest.skip('the TypeScript SDK is not checked out beside this one')
+        # end if
+    text = source.read_text('utf-8')
+    body = text[text.index('export class AuditedTask') :]
+    ts_methods = set(re.findall(r'^  (?:async )?([a-z][A-Za-z]*)\(', body, re.MULTILINE)) - {'constructor'}
+    py_methods = {
+        _camel(name)
+        for name, value in vars(auditable_a2a.AuditedTask).items()
+        if not name.startswith('_') and callable(value)
+    }
+    assert py_methods - ts_methods == set()
+    assert ts_methods - py_methods == set()
+    # end def

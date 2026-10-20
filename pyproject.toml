@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 # itself. The import package is `auditable_a2a`.
 [project]
 name = "auditable-a2a-sdk"
-version = "0.1.0"
+version = "0.1.1"
 description = "Auditable A2A SDK — write-ahead audit of a delegated A2A Task into the Client's ledger (auditable-a2a/0.1, over auditable-mcp/0.4)."
 readme = "README.md"
 requires-python = ">=3.12"

@@ -75,9 +75,9 @@ SDK wraps are the ones the SDK serves every binding with. The tests and the walk
 Releases are published as tags of this repository, not to PyPI:
 
 ```bash
-pip install 'auditable-a2a-sdk @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.0'            # the core
-pip install 'auditable-a2a-sdk[http] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.0'      # with httpx
-pip install 'auditable-a2a-sdk[a2a] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.0'       # with a2a-sdk
+pip install 'auditable-a2a-sdk @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.1'            # the core
+pip install 'auditable-a2a-sdk[http] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.1'      # with httpx
+pip install 'auditable-a2a-sdk[a2a] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.1'       # with a2a-sdk
 ```
 
 It depends on [`auditable-mcp-sdk`](https://github.com/SatoshiImai/auditable-mcp-sdk-python) `v0.4.0`, which pip installs
@@ -221,6 +221,16 @@ performed, is stated with an execution report (§8.6):
 
 ```python
 await task.report_execution(attempt_id, 'not-performed')
+```
+
+A transition, a question or an answer is a record that is not an access (§8.1). `task.record(...)` sends it with
+`mutates` and `egress` both `false` and waits for the accept on entering, so nothing goes past what it describes
+before the record is made. It ends `success` however its body ends, and a resumption completes an accepted one with
+`success` rather than reporting on it:
+
+```python
+async with task.record('agent.step', {'kind': 'task', 'ref': task_id}, commit_salted={'plan': plan}):
+    pass
 ```
 
 ### 3. Resuming after a restart
