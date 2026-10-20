@@ -96,7 +96,7 @@ from auditable_a2a.verify import (
     verify_a2a_ledger,
 )
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 __all__ = [
     '__version__',

@@ -75,9 +75,9 @@ SDK wraps are the ones the SDK serves every binding with. The tests and the walk
 Releases are published as tags of this repository, not to PyPI:
 
 ```bash
-pip install 'auditable-a2a-sdk @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.0'            # the core
-pip install 'auditable-a2a-sdk[http] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.0'      # with httpx
-pip install 'auditable-a2a-sdk[a2a] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.0'       # with a2a-sdk
+pip install 'auditable-a2a-sdk @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.1'            # the core
+pip install 'auditable-a2a-sdk[http] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.1'      # with httpx
+pip install 'auditable-a2a-sdk[a2a] @ git+https://github.com/SatoshiImai/auditable-a2a-sdk-python.git@v0.1.1'       # with a2a-sdk
 ```
 
 It depends on [`auditable-mcp-sdk`](https://github.com/SatoshiImai/auditable-mcp-sdk-python) `v0.4.0`, which pip installs

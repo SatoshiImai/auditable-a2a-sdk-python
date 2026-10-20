@@ -258,6 +258,25 @@ async def test_the_execution_report_records_an_accept_not_performed() -> None:
     # end def
 
 
+async def test_a_countersigning_key_not_named_under_host_keys_is_refused_before_a_session_opens() -> None:
+    """§7.1, §10.2: a delegate looks the key up at hostKeys as `{hostKeys}#{kid}`; any other name never verifies."""
+    host_key = generate_tool_key('h1')
+    host = A2aAuditHost.create(
+        'client-a',
+        Level.L1,
+        Countersign.HOST,
+        store=InMemorySessionStore(),
+        clock=_Clock(),
+        countersigner=Ed25519Countersigner(host_key.key_id, host_key.private_key),
+    )
+    with pytest.raises(ValueError, match='§7.1'):
+        await host.open_session(
+            delegate='https://agent.example', expires_at='2026-11-15T00:00:00Z', host_keys=_HOST_KEYS
+        )
+        # end with
+    # end def
+
+
 async def test_a_countersigned_task_needs_the_means_to_fetch_the_host_keys_again() -> None:
     """§10.2: without it, a rotated key would read as a bad countersignature."""
     _, task, network, _ = await _setup(countersign=Countersign.HOST)
