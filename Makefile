@@ -1,4 +1,4 @@
-PYTHON_VER			:= 3.14.7
+PYTHON_VER			:= 3.14.10
 VENV				:= $(PYTHON_VER)-aa2a
 ACTIVATE			:= . ~/.pyenv/versions/$(VENV)/bin/activate
 
